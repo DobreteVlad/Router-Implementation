@@ -1,0 +1,33 @@
+DOBRETE VLAD GABRIEL
+323CA
+
+
+Logica routerului este implementata in router.cpp.
+In skell.h si skell.cpp am adaugat functia ip_checksum din laborator.
+router.cpp prelucreaza doar pachetele de tip ip.
+De asemenea, am folosti arp_table static.
+Parsam mai intai atat rtable.txt, cat si arp_table.txt
+Sortam tabela de rutare pentru a facilita cautarea in aceasta.
+Criteriul de sortare este : crescator dupa prefix si mask.
+Analizam cazurile posibile pentru tipul de pachet IP.
+Daca pachetul IP este de tip ICMP ECHO, interschimbam adresele si aruncam
+pachetul(icmp_type = 8).
+Daca primim un pachet cu TTL <= 1, trimitem un mesaj ICMP sursei si aruncam
+pachetul. Folosim functia custom_icmp_packet pentru a completa campurile
+(icmp->type = 11).
+Cautarea in tabel de rutare se efectueaza in O(log n). Aceasta presupune
+cautarea unui "match" (iph−>daddr & f.mask == f.prefix) in tabela de rutare.
+Am optat pentru cautarea binara recursiva. In cazul in care am ajuns la un caz
+convenabil, ne uitam mai sus. In cazul in care gasim tot match, continuam
+recursivitatea in partea de sus. Daca nu, returnam pozitia.
+Daca primim un pachet cu o adresa inexistenta in tabela de rutare( daca functia
+get_best_route returneaza null), trimitem un mesaj ICMP sursei si aruncam 
+pachetul. Folosim functia custom_icmp_packet pentru a completa campurile
+(diferenta fata de cazul precedent este reprezentata de icmp->type = 3).
+Verificam si daca pachetul are un checksum gresit si aruncam pachetul.
+Updatam mereu TTL-ul, decrementandu- l si recalculam checksum.
+Caut in arp_table un match. Daca nu gasesc, arunc pachetul.
+Updatez adresele Ethernet.
+Precizez ca atat pentru partea de forwarding, cat si pentru partea de icmp,
+m-am folosit de laboratoarele 4 si 5, precum si de informatiile date in 
+documentatie.
